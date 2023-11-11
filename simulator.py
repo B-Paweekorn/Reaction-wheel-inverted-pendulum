@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import time
+from scipy.signal import cont2discrete 
 import math
+import time
 
 # RWIP param
 L1 = 0.11 # Length of Pendulum from origin to center of mass (m)
@@ -62,16 +63,17 @@ State_x = np.array([[0],
                     [0],
                     [0],
                     [0]])
-Vin = 0.05
+Vin = 300
 
 A, B, C, D = MatrixGenerator()
+Ad, Bd, Cd, Dd, _ = cont2discrete((A, B, C, D),dt)
 while True:
     if time.time() - timestamp >= dt:
         timestamp = time.time()
 
         # State Space
-        State_x_dot = np.dot(A, State_x) + np.dot(B, Vin)
-        State_theta = np.dot(C, State_x)[0,0]
+        State_x_dot = np.dot(Ad, State_x) + np.dot(Bd, Vin)
+        State_theta = np.dot(Cd, State_x)[0,0]
         State_x = State_x + np.dot(State_x_dot, dt)
         
         print(State_theta)
