@@ -19,75 +19,55 @@ ke = 0.0649 # Electrical constant of DC Motor (Vs/rad)
 Ng = 1 # Transmission ratio of DC Motor
 R = 6.83 # Resistor of DC Motor (Ohm)
 
-def MatrixGenerator():
-    a = m1*(L1**2) + m2*(L2**2) + I1
-    b = (m1*L1 + m2*L2) * g
+a = m1*(L1**2) + m2*(L2**2) + I1
+b = (m1*L1 + m2*L2) * g
 
-    a21 = b/a
-    a24 = kt*ke*(Ng**2)/(a * R)
-    a41 = -b/a
-    a44 = -1 * ((a + I2)/(a * I2)) * ((kt*ke*Ng**2)/R)
+def qp_dd_cal(q, Tr):
+    qdd = ((m1*g*L1*math.sin(q)) + (m2*g*L2*math.sin(q)) - Tr)/((m1*L1**2) + (m2*L2) + I1)
+    return qdd
 
-    b2 = -(kt*Ng)/(a*R)
-    b4 = ((a + I2)/(a*I2)) * ((kt*Ng)/R)
+def Forwardkinematics(q):
+    x = L2 * math.sin(q)
+    y = L2 * math.cos(q)
+    return x, y
 
-    A = np.array([[0, 1, 0, 0],
-                  [a21, 0, 0, a24],
-                  [0, 0, 0, 1],
-                  [a41, 0, 0, a44]])
+def PendulumEnergy(q,qd):
+    K = 0.5*m1*(qd*L1)**2 # Kinetic energy
+    P = (m1 + m2)*g*L2*math.cos(q) # Potential energy
+    return K + P
 
-    B = np.array([[0],
-                  [b2],
-                  [0],
-                  [b4]])
-    
-    C = np.array([[1, 0, 0, 0]])
+qp = math.pi # initial pendulum angle
+qp_d = 0.0 # initial pendulum spe
 
-    D = np.array([[0, 0, 0, 0]])
+Tr = 1.0
 
-    return A, B, C, D
-
-def Forwardkinematics(theta):
-    x_pos = L2 * math.sin(theta)
-    y_pos = L2 * math.cos(theta)
-    return x_pos, y_pos
-
-# Loop configuration
-dt = 0.01
 timestamp = 0
+dt = 0.01
 fig, ax = plt.subplots()
+
 ax.grid(True)
 
-# State space
-State_x = np.array([[0],
-                    [0],
-                    [0],
-                    [0]])
-Vin = 300
-
-A, B, C, D = MatrixGenerator()
-Ad, Bd, Cd, Dd, _ = cont2discrete((A, B, C, D),dt)
 while True:
     if time.time() - timestamp >= dt:
         timestamp = time.time()
+        T = PendulumEnergy(qp, qp_d)
+        if T < (m1 + m2)*g*L2*math.cos(0) and qp >= math.pi and qp_d < 0.01:
+            Tr = 1
+        else:
+            Tr = 0
 
-        # State Space
-        State_x_dot = np.dot(Ad, State_x) + np.dot(Bd, Vin)
-        State_theta = np.dot(Cd, State_x)[0,0]
-        State_x = State_x + np.dot(State_x_dot, dt)
-        
-        print(State_theta)
-        Pos_x, Pos_y = Forwardkinematics(State_theta)
+        qp_dd = qp_dd_cal(qp,Tr)
+        qp_d = qp_d + (qp_dd * dt)
+        qp = qp + (qp_d * dt)
 
+        x, y = Forwardkinematics(qp)
+
+        print(qp)
         ax.clear()
-        ax.plot([0, Pos_x], 
-                [0, Pos_y], 'o-')  # Plot robot
+        ax.plot([0, x], 
+                [0, y], 'o-')  # Plot robot
 
         ax.set_xlim(-2*L1, 2*L1)
         ax.set_ylim(-2*L1, 2*L1)
         ax.set_aspect('equal')
         plt.pause(dt)
-        
-
-
-
