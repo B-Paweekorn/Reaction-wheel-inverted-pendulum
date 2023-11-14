@@ -2,11 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import pygame
-from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN, K_RETURN
+from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN
 import io
 import sys
 import math
-import time
 
 # RWIP param
 L1 = 0.11  # Length of Pendulum from origin to center of mass (m)
@@ -47,8 +46,7 @@ def MotorDynamics(Vin, dt):
     return Tm
 
 def RwipDynamics(q, Tr, Tp):
-    qdd = ((m1 * g * L1 * math.sin(q)) + (m2 * g * L2 * math.sin(q)) - Tr + Tp - dp * qp_d) / (
-                (m1 * L1 ** 2.0) + (m2 * L2) + I1)
+    qdd = ((m1 * g * L1 * math.sin(q)) + (m2 * g * L2 * math.sin(q)) - Tr + Tp - dp * qp_d) / ((m1 * L1 ** 2.0) + (m2 * L2) + I1)
     return qdd
 
 def plot_figure(qp, qp_d, qr_d, Tm, Vin, Tp):
@@ -72,11 +70,11 @@ def plot_figure(qp, qp_d, qr_d, Tm, Vin, Tp):
     ax.set_ylim(-2.5 * L1, 2.5 * L1)
     ax.set_aspect('equal')
 
-    ax.text(-0.26, 0.25, f'Pendulum Angle (deg): {round(np.rad2deg(qp), 2)}', fontsize=7, color='black')
-    ax.text(-0.26, 0.23, f'Pendulum Speed (deg/s) : {round(np.rad2deg(qp_d), 2)}', fontsize=7, color='black')
+    ax.text(-0.26, 0.25, f'Pendulum Angle (Deg): {round(np.rad2deg(qp), 2)}', fontsize=7, color='black')
+    ax.text(-0.26, 0.23, f'Pendulum Speed (Deg/s) : {round(np.rad2deg(qp_d), 2)}', fontsize=7, color='black')
     ax.text(-0.26, 0.21, f'Controller Mode : {controller_mode}', fontsize=7, color='BLUE')
 
-    ax.text(0.11, 0.25, f'Motorspeed (rad/s): {round(qr_d * 60 / (math.pi * 2), 2)}', fontsize=7, color='black')
+    ax.text(0.11, 0.25, f'Motorspeed (RPM): {round(qr_d * 60 / (math.pi * 2), 2)}', fontsize=7, color='black')
     ax.text(0.11, 0.23, f'Apply Torque (Nm): {round(Tm, 2)}', fontsize=7, color='black')
     ax.text(0.11, 0.21, f'Vin (V): {round(Vin, 2)}', fontsize=7, color='black')
     ax.text(0.11, 0.19, f'Disturbance Torque (Tp): {round(Tp, 2)}', fontsize=7, color='black')
@@ -108,7 +106,7 @@ qr_d = 0  # Initial reaction wheel speed
 Tm = 0  # Initial reaction wheel torque
 Tp = 0  # Initial disturbance torque
 
-dt = 1 / 10  # frequency (Hz)
+dt = 1 / 100  # frequency (Hz)
 reqE = (m1 + m2) * g * L2 * math.cos(0)
 
 d_flag = 0
@@ -123,7 +121,7 @@ while running:
             running = False
         elif event.type == MOUSEBUTTONDOWN:
             if 180 < event.pos[0] < 280 and 10 < event.pos[1] < 60:
-                input_flag = True           
+                input_flag = True
 
         elif event.type == KEYDOWN:      
             
@@ -184,7 +182,7 @@ while running:
     screen.blit(text, (320, 25))
 
     pygame.display.flip()
-    clock.tick(1000)
+    clock.tick(100)
 
 pygame.quit()
 sys.exit()
