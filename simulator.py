@@ -2,10 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import pygame
-from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN
+from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN, K_RETURN
 import io
 import sys
 import math
+import time
 
 # RWIP param
 L1 = 0.11  # Length of Pendulum from origin to center of mass (m)
@@ -32,8 +33,8 @@ def Forwardkinematics(q):
     y = L2 * math.cos(q)
     return x, y
 
-def PendulumEnergy(q, qd):
-    K = 0.5 * m1 * (qd * L1) ** 2.0  # Kinetic energy
+def PendulumEnergy(q, qp_d):
+    K = (0.5 * m1 * math.pow(qp_d * L1, 2)) + (0.5 * m2 * math.pow(qp_d * L2, 2)) + (0.5 * I2 * qp_d*qp_d) # Kinetic energy
     P = (m1 + m2) * g * L2 * math.cos(q)  # Potential energy
     return K + P
 
@@ -46,7 +47,8 @@ def MotorDynamics(Vin, dt):
     return Tm
 
 def RwipDynamics(q, Tr, Tp):
-    qdd = ((m1 * g * L1 * math.sin(q)) + (m2 * g * L2 * math.sin(q)) - Tr + Tp - dp * qp_d) / ((m1 * L1 ** 2.0) + (m2 * L2) + I1)
+    qdd = ((m1 * g * L1 * math.sin(q)) + (m2 * g * L2 * math.sin(q)) - Tr + Tp - dp * qp_d) / (
+                (m1 * L1 ** 2.0) + (m2 * L2) + I1)
     return qdd
 
 def plot_figure(qp, qp_d, qr_d, Tm, Vin, Tp):
@@ -70,8 +72,8 @@ def plot_figure(qp, qp_d, qr_d, Tm, Vin, Tp):
     ax.set_ylim(-2.5 * L1, 2.5 * L1)
     ax.set_aspect('equal')
 
-    ax.text(-0.26, 0.25, f'Pendulum Angle (Deg): {round(np.rad2deg(qp), 2)}', fontsize=7, color='black')
-    ax.text(-0.26, 0.23, f'Pendulum Speed (Deg/s) : {round(np.rad2deg(qp_d), 2)}', fontsize=7, color='black')
+    ax.text(-0.26, 0.25, f'Pendulum Angle (deg): {round(np.rad2deg(qp), 2)}', fontsize=7, color='black')
+    ax.text(-0.26, 0.23, f'Pendulum Speed (deg/s) : {round(np.rad2deg(qp_d), 2)}', fontsize=7, color='black')
     ax.text(-0.26, 0.21, f'Controller Mode : {controller_mode}', fontsize=7, color='BLUE')
 
     ax.text(0.11, 0.25, f'Motorspeed (RPM): {round(qr_d * 60 / (math.pi * 2), 2)}', fontsize=7, color='black')
@@ -94,6 +96,7 @@ pygame.display.set_caption('Reaction Wheel Inverted Pendulum')
 
 WHITE = (255, 255, 255)
 GREY = (156, 156, 154)
+RED = (255, 0, 0)
 font = pygame.font.Font(None, 36)
 clock = pygame.time.Clock()
 
@@ -106,10 +109,13 @@ qr_d = 0  # Initial reaction wheel speed
 Tm = 0  # Initial reaction wheel torque
 Tp = 0  # Initial disturbance torque
 
-dt = 1 / 100  # frequency (Hz)
+dt = 1 / 10  # frequency (Hz)
 reqE = (m1 + m2) * g * L2 * math.cos(0)
 
 d_flag = 0
+
+settled_flag = False
+wait_flag = False
 
 running = True
 input_flag = False
@@ -122,6 +128,15 @@ while running:
         elif event.type == MOUSEBUTTONDOWN:
             if 180 < event.pos[0] < 280 and 10 < event.pos[1] < 60:
                 input_flag = True
+            if 542 < event.pos[0] < 642 and 10 < event.pos[1] < 60:
+                qp = np.deg2rad(180)
+                qp_d = 0.0
+                qr = 0
+                qr_d = 0
+                Tm = 0
+                Tp = 0
+                settled_flag = False
+                wait_flag = False
 
         elif event.type == KEYDOWN:      
             
@@ -139,20 +154,39 @@ while running:
         input_flag = False
     else:
         Tp = 0
-    E = PendulumEnergy(q=qp, qd=qp_d)
+    E = PendulumEnergy(q=qp, qp_d=qp_d)
 
-    if abs(qp) % (2 * math.pi) <= np.deg2rad(20) or abs(qp) % (2 * math.pi) >= np.deg2rad(340):
+    if wait_flag:
+        controller_mode = "brake"
+        qp_d = qp_d * 0.8
+        if abs(np.rad2deg(qp_d)) < 10:
+            wait_flag = False
+    elif abs(qp) % (2 * math.pi) <= np.deg2rad(20) or abs(qp) % (2 * math.pi) >= np.deg2rad(340):
+        settled_flag = True
         controller_mode = "PID"
+    else:
+        if settled_flag:
+            wait_flag = True
+            settled_flag = False
+        if not wait_flag:
+            controller_mode = "Bang-bang"
+
+    if(controller_mode == "PID"):
         setpoint = 0
         e = setpoint - qp
         Vin = e * -200 + 50 * qp_d
-
-    else:
-        controller_mode = "Bang-bang"
+    elif(controller_mode == "Bang-bang"):
         if (qp_d < 0 and E < reqE) or (qp_d >= 0 and E >= reqE):
             Vin = 24
         elif (qp_d >= 0 and E < reqE) or (qp_d < 0 and E >= reqE):
             Vin = -24
+    elif(controller_mode == "brake"):
+        if (qp_d < 0 and E < reqE) or (qp_d >= 0 and E >= reqE):
+            Vin = -24
+        elif (qp_d >= 0 and E < reqE) or (qp_d < 0 and E >= reqE):
+            Vin = 24
+    else:
+        Vin = 0
 
     if Vin > 24:
         Vin = 24
@@ -175,14 +209,25 @@ while running:
     text = font.render('Inject', True, (0, 0, 0))
     screen.blit(text, (195, 22))
 
+    pygame.draw.rect(screen, RED, (542, 10, 100, 50))
+    text = font.render('RESET', True, (255, 255, 255))
+    screen.blit(text, (553, 23))
+
     # Draw disturbance input field
     pygame.draw.rect(screen, GREY, (300, 10, 150, 50))
     pygame.draw.rect(screen, WHITE, (315, 20, 120, 30))
     text = font.render(input_string, True, (0, 0, 0))
     screen.blit(text, (320, 25))
 
+    # calculate FPS and draw
+    fps = clock.get_fps()
+    pygame.display.set_caption(f'Reaction Wheel Inverted Pendulum (FPS: {round(fps, 2)}, dt: {round(dt, 4)})')
+
+    if fps:
+        dt = 1/fps
+    
     pygame.display.flip()
-    clock.tick(100)
+    clock.tick(60)
 
 pygame.quit()
 sys.exit()
