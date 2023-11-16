@@ -81,12 +81,12 @@ def plot_figure(qp, qp_d, qr_d, Tm, Vin, Tp):
     ax.text(0.11, 0.21, f'Vin (V): {round(Vin, 2)}', fontsize=7, color='black')
     ax.text(0.11, 0.19, f'Disturbance Torque (Tp): {round(Tp, 2)}', fontsize=7, color='black')
 
-    buffer = io.BytesIO()
     canvas = FigureCanvas(fig)
-    canvas.print_png(buffer)
+    canvas.draw()
+    raw_data = canvas.tostring_rgb()
     plt.close(fig)
-    buffer.seek(0)
-    return pygame.image.load(buffer, 'PNG')
+    size = canvas.get_width_height()
+    return pygame.image.fromstring(raw_data, size, 'RGB')
 
 pygame.init()
 
