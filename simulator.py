@@ -1,6 +1,6 @@
 import numpy as np
 import pygame
-from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN
+from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN, K_RETURN
 import io
 import sys
 import math
@@ -75,21 +75,25 @@ def plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint):
     # Draw RWIP
     x, y = Forwardkinematics(qp)
     x, y = x_offset - x * multiplier, y_offset - y * multiplier
-    pygame.draw.line(screen, BLACK, (x_offset, y_offset), (x, y), 3)
+    pygame.draw.line(screen, BLACK, (x_offset, y_offset), (x, y), 5)
 
     # Draw wheel
-    pygame.draw.circle(screen, GREY, (x, y), wheelradius * multiplier, 3)
+    pygame.draw.circle(screen, GREY, (x, y), wheelradius * multiplier, 8)
 
     # Draw cross
     cross_length = wheelradius * multiplier
-    cross_dx = cross_length * np.sin(qr)
-    cross_dy = -cross_length * np.cos(qr)
+    cross_dx = cross_length * np.sin(qr) * 0.8
+    cross_dy = -cross_length * np.cos(qr) * 0.8
     pygame.draw.line(
-        screen, BLACK, (x - cross_dx, y - cross_dy), (x + cross_dx, y + cross_dy), 1
+        screen, BLACK, (x - cross_dx, y - cross_dy), (x + cross_dx, y + cross_dy), 2
     )
     pygame.draw.line(
-        screen, BLACK, (x - cross_dy, y + cross_dx), (x + cross_dy, y - cross_dx), 1
+        screen, BLACK, (x - cross_dy, y + cross_dx), (x + cross_dy, y - cross_dx), 2
     )
+
+    # Draw pendulum point
+    pygame.draw.circle(screen, BLACK, (x, y), 5)
+    pygame.draw.circle(screen, BLACK, (x_offset, y_offset), 5)
 
     # Draw text
     font = pygame.font.Font(None, 20)
@@ -170,10 +174,11 @@ while running:
                 Tp = 0
                 settled_flag = False
                 wait_flag = False
-
         elif event.type == KEYDOWN:
             if event.key == pygame.K_BACKSPACE:
                 input_string = input_string[:-1]
+            elif event.key == pygame.K_RETURN:
+                input_flag = True
             else:
                 input_string += event.unicode
 
