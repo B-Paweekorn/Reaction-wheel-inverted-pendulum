@@ -3,6 +3,12 @@ import pygame
 from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN, K_RETURN
 import sys
 import math
+import matplotlib.pyplot as plt
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtCore import Qt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import pygetwindow as gw
 
 # ==========================================================================================
 # ======================================= PARAMETER ========================================
@@ -115,6 +121,33 @@ def plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint):
         screen.blit(rendered_text, (230, 80 + i * 20))
 
 
+def plot_graph():
+    plt.clf()
+
+    # Create the first subplot
+    plt.subplot(2, 1, 1)
+    plt.plot(timedt_data, qp_data, label="qp", color="blue", linewidth=2)
+    plt.plot(timedt_data, setpoint_data, label="setpoint", color="red", linewidth=2)
+    plt.legend()
+
+    # Create the second subplot
+    plt.subplot(2, 1, 2)
+    plt.plot(timedt_data, qr_d_data, label="qr_d", color="purple", linewidth=2)
+    plt.legend(loc="upper left")
+    ax2 = plt.twinx()
+    ax2.plot(timedt_data, Tm_data, label="Tm", color="green", linewidth=2)
+    ax2.set_ylim(-1, 1)
+    ax2.legend(loc="upper right")
+
+    # Display the figure
+    canvas = FigureCanvas(fig)
+    win.setCentralWidget(canvas)
+    win.show()
+
+def on_click(event):
+    plot_graph()
+
+
 # ==========================================================================================
 # ======================================= MAIN LOGIC =======================================
 # ==========================================================================================
@@ -124,6 +157,7 @@ pygame.init()
 width, height = 400, 560
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Reaction Wheel Inverted Pendulum")
+pygame_windows = gw.getWindowsWithTitle("Reaction Wheel Inverted Pendulum")
 
 WHITE = (255, 255, 255)
 GREY = (100, 100, 100)
@@ -157,6 +191,23 @@ running = True
 input_flag = False
 input_string = ""
 
+app = QApplication(sys.argv)
+win = QMainWindow()
+win.setWindowFlag(Qt.FramelessWindowHint)  # Remove the title bar
+fig = plt.figure(num="plot output", figsize=(5, 5))
+plt.text(0, 0.4, "Click on the pendulum display to plot.\n\nDon't spam, it lags.", fontsize = 15)
+plt.axis('off')
+canvas = FigureCanvas(fig)
+win.setCentralWidget(canvas)
+win.show()
+plt.gcf().canvas.mpl_connect('button_press_event', on_click)
+
+timedt_data = []
+qp_data = []
+setpoint_data = []
+Tm_data = []
+qr_d_data = []
+
 while running:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -174,6 +225,13 @@ while running:
                 Tp = 0
                 settled_flag = False
                 wait_flag = False
+                timedt_data = []
+                qp_data = []
+                setpoint_data = []
+                Tm_data = []
+                qr_d_data = []
+            if event.pos[1] > 160:
+                plot_graph()
         elif event.type == KEYDOWN:
             if event.key == pygame.K_BACKSPACE:
                 input_string = input_string[:-1]
@@ -256,6 +314,15 @@ while running:
 
     # Draw figure
     plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint)
+
+    timedt_data.append(timedt)
+    qp_data.append(qp)
+    setpoint_data.append(setpoint)
+    Tm_data.append(Tm)
+    qr_d_data.append(qr_d)
+
+    # move graph with pygame
+    win.move(pygame_windows[0].left + 420, pygame_windows[0].top + 50)
 
     # Draw button
     pygame.draw.rect(screen, GREY, (10, 10, 100, 50))
