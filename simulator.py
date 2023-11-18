@@ -1,10 +1,8 @@
 import numpy as np
 import pygame
 from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN, K_RETURN
-import io
 import sys
 import math
-import time
 
 # ==========================================================================================
 # ======================================= PARAMETER ========================================
@@ -46,6 +44,7 @@ def PendulumEnergy(q, qp_d):
         (0.5 * m1 * math.pow(qp_d * L1, 2))
         + (0.5 * m2 * math.pow(qp_d * L2, 2))
         + (0.5 * I2 * qp_d * qp_d)
+        + (0.5 * I1 * qp_d * qp_d)
     )  # Kinetic energy
     P = (m1 + m2) * g * L2 * math.cos(q)  # Potential energy
     return K + P
@@ -68,7 +67,7 @@ def RwipDynamics(q, Tr, Tp):
 
 
 def plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint):
-    x_offset = 240
+    x_offset = 200
     y_offset = 360
     multiplier = 800
 
@@ -96,7 +95,7 @@ def plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint):
     pygame.draw.circle(screen, BLACK, (x_offset, y_offset), 5)
 
     # Draw text
-    font = pygame.font.Font(None, 20)
+    font = pygame.font.Font(None, 18)
     texts = [
         f"Setpoint (deg): {round(np.rad2deg(setpoint), 2)}",
         f"Pendulum Angle (deg): {round(np.rad2deg(qp), 2)}",
@@ -104,17 +103,16 @@ def plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint):
         f"Controller Mode : {controller_mode}",
     ]
     for i, text in enumerate(texts):
-        rendered_text = font.render(text, True, BLACK)
+        rendered_text = font.render(text, True, WHITE)
         screen.blit(rendered_text, (10, 80 + i * 20))
     texts = [
         f"Motorspeed (RPM): {round(qr_d * 60 / (math.pi * 2), 2)}",
         f"Apply Torque (Nm): {round(Tm, 2)}",
         f"Vin (V): {round(Vin, 2)}",
-        f"Disturbance Torque (Tp): {round(Tp, 2)}",
     ]
     for i, text in enumerate(texts):
-        rendered_text = font.render(text, True, BLACK)
-        screen.blit(rendered_text, (300, 80 + i * 20))
+        rendered_text = font.render(text, True, WHITE)
+        screen.blit(rendered_text, (230, 80 + i * 20))
 
 
 # ==========================================================================================
@@ -123,12 +121,12 @@ def plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint):
 
 pygame.init()
 
-width, height = 480, 560
+width, height = 400, 560
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Reaction Wheel Inverted Pendulum")
 
 WHITE = (255, 255, 255)
-GREY = (156, 156, 154)
+GREY = (100, 100, 100)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
@@ -144,6 +142,7 @@ qr_d = 0  # Initial reaction wheel speed
 Tm = 0  # Initial reaction wheel torque
 Tp = 0  # Initial disturbance torque
 
+timedt = 0
 dt = 1 / 10  # frequency (Hz)
 reqE = (m1 + m2) * g * L2 * math.cos(0)
 
@@ -163,9 +162,10 @@ while running:
         if event.type == QUIT:
             running = False
         elif event.type == MOUSEBUTTONDOWN:
+            # print(event.pos)
             if 10 < event.pos[0] < 110 and 10 < event.pos[1] < 60:
                 input_flag = True
-            if 372 < event.pos[0] < 472 and 10 < event.pos[1] < 60:
+            if 292 < event.pos[0] < 392 and 10 < event.pos[1] < 60:
                 qp = np.deg2rad(180)
                 qp_d = 0.0
                 qr = 0
@@ -184,21 +184,21 @@ while running:
 
     if input_flag == True:
         try:
-            Tp = float(input_string)
+            Tp = -float(input_string)
         except:
             Tp = 0
             input_string = ""
         input_flag = False
     else:
         Tp = 0
-    
+
     # Update setpoint
     setpoint_offset = (qp - math.pi) / (2 * math.pi)
     if setpoint_offset < 0:
         setpoint = (math.floor(setpoint_offset) + 1) * 2 * math.pi
     elif setpoint_offset > 0:
         setpoint = math.ceil(setpoint_offset) * 2 * math.pi
-    
+
     E = PendulumEnergy(q=qp, qp_d=qp_d)
 
     if wait_flag:
@@ -226,9 +226,9 @@ while running:
         elif (qp_d >= 0 and E < reqE) or (qp_d < 0 and E >= reqE):
             Vin = -12
     elif controller_mode == "brake":
-        if (qp_d < 0 and E < reqE) or (qp_d >= 0 and E >= reqE):
+        if qp_d < 0:
             Vin = -12
-        elif (qp_d >= 0 and E < reqE) or (qp_d < 0 and E >= reqE):
+        elif qp_d >= 0:
             Vin = 12
     else:
         Vin = 0
@@ -246,36 +246,39 @@ while running:
 
     # Draw background
     screen.fill(WHITE)
+    pygame.draw.rect(screen, (24, 24, 24), (0, 0, 401, 160))
 
     # Draw grid
-    for i in range(40, 480, 50):
+    for i in range(0, 401, 50):
         pygame.draw.line(screen, GREY, (i, 160), (i, 600), 1)
     for i in range(160, 560, 50):
-        pygame.draw.line(screen, GREY, (0, i), (480, i), 1)
+        pygame.draw.line(screen, GREY, (0, i), (400, i), 1)
 
     # Draw figure
     plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint)
 
     # Draw button
     pygame.draw.rect(screen, GREY, (10, 10, 100, 50))
-    text = font.render("Inject", True, (0, 0, 0))
-    screen.blit(text, (25, 22))
+    text = font.render("INJECT", True, WHITE)
+    screen.blit(text, (20, 23))
 
-    pygame.draw.rect(screen, RED, (372, 10, 100, 50))
+    pygame.draw.rect(screen, RED, (292, 10, 100, 50))
     text = font.render("RESET", True, (255, 255, 255))
-    screen.blit(text, (383, 23))
+    screen.blit(text, (303, 23))
 
     # Draw disturbance input field
-    pygame.draw.rect(screen, GREY, (130, 10, 150, 50))
-    pygame.draw.rect(screen, WHITE, (145, 20, 120, 30))
+    pygame.draw.rect(screen, GREY, (110, 10, 130, 50))
+    pygame.draw.rect(screen, WHITE, (125, 20, 100, 30))
     text = font.render(input_string, True, (0, 0, 0))
-    screen.blit(text, (150, 25))
+    screen.blit(text, (130, 25))
 
     # calculate FPS and draw
     fps = clock.get_fps()
     pygame.display.set_caption(
-        f"Reaction Wheel Inverted Pendulum (FPS: {round(fps, 2)}, dt: {round(dt, 4)})"
+        f"Reaction Wheel Inverted Pendulum (FPS: {fps:.2f}, dt: {dt:.4f}, time: {timedt:.2f})"
     )
+
+    timedt += dt
 
     if fps:
         dt = 1 / fps
