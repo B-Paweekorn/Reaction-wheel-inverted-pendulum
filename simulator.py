@@ -132,14 +132,20 @@ def plot_graph():
 
     # Create the second subplot
     plt.subplot(2, 1, 2)
-    plt.plot(timedt_data, Tm_data, label="Tm", color="green", linewidth=2)
     plt.plot(timedt_data, qr_d_data, label="qr_d", color="purple", linewidth=2)
-    plt.legend()
+    plt.legend(loc="upper left")
+    ax2 = plt.twinx()
+    ax2.plot(timedt_data, Tm_data, label="Tm", color="green", linewidth=2)
+    ax2.set_ylim(-1, 1)
+    ax2.legend(loc="upper right")
 
     # Display the figure
     canvas = FigureCanvas(fig)
     win.setCentralWidget(canvas)
     win.show()
+
+def on_click(event):
+    plot_graph()
 
 
 # ==========================================================================================
@@ -189,9 +195,12 @@ app = QApplication(sys.argv)
 win = QMainWindow()
 win.setWindowFlag(Qt.FramelessWindowHint)  # Remove the title bar
 fig = plt.figure(num="plot output", figsize=(5, 5))
+plt.text(0, 0.4, "Click on the pendulum display to plot.\n\nDon't spam, it lags.", fontsize = 15)
+plt.axis('off')
 canvas = FigureCanvas(fig)
 win.setCentralWidget(canvas)
 win.show()
+plt.gcf().canvas.mpl_connect('button_press_event', on_click)
 
 timedt_data = []
 qp_data = []
@@ -313,7 +322,7 @@ while running:
     qr_d_data.append(qr_d)
 
     # move graph with pygame
-    win.move(pygame_windows[0].left + 400, pygame_windows[0].top)
+    win.move(pygame_windows[0].left + 420, pygame_windows[0].top + 50)
 
     # Draw button
     pygame.draw.rect(screen, GREY, (10, 10, 100, 50))
