@@ -9,6 +9,8 @@ from PyQt5.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import pygetwindow as gw
+import pyaudio
+import threading
 
 # ==========================================================================================
 # ======================================= PARAMETER ========================================
@@ -147,6 +149,35 @@ def plot_graph():
 def on_click(event):
     plot_graph()
 
+
+# ==========================================================================================
+# ========================================= EXTRA ==========================================
+# ==========================================================================================
+
+p = pyaudio.PyAudio()
+BITRATE = 44000  # number of frames per second/frameset.
+FREQUENCY = 500  # Hz, waves per second, 261.63=C4-note.
+BITRATE = max(BITRATE, FREQUENCY + 100)
+stream = p.open(format=p.get_format_from_width(1), channels=1, rate=BITRATE, output=True)
+stop_thread = False
+
+def generate_sound():
+    """Generate and play sound with current frequency in a loop."""
+    while not stop_thread:
+        # Generate wave data for 1 second
+        NUMBEROFFRAMES = int(BITRATE * 0.01)  # 1 second of sound
+        WAVEDATA = ""
+        for x in range(NUMBEROFFRAMES):
+            try:
+                WAVEDATA += chr(int(math.sin(x / ((BITRATE / FREQUENCY) / math.pi)) * 127 + 128))
+            except ZeroDivisionError:
+                WAVEDATA += chr(128)
+        # Play sound
+        stream.write(WAVEDATA)
+
+# Start sound generation in a separate thread
+sound_thread = threading.Thread(target=generate_sound)
+sound_thread.start()
 
 # ==========================================================================================
 # ======================================= MAIN LOGIC =======================================
@@ -297,6 +328,8 @@ while running:
         Vin = -24
 
     Tm = MotorDynamics(Vin, dt)
+    
+    FREQUENCY = pow(abs(qr_d), 2) * 10
 
     qp_dd = RwipDynamics(qp, Tm, Tp)
     qp_d = qp_d + (qp_dd * dt)
@@ -323,6 +356,7 @@ while running:
 
     # move graph with pygame
     win.move(pygame_windows[0].left + 420, pygame_windows[0].top + 50)
+    win.showNormal()
 
     # Draw button
     pygame.draw.rect(screen, GREY, (10, 10, 100, 50))
@@ -354,4 +388,5 @@ while running:
     clock.tick(165)
 
 pygame.quit()
+stop_thread = True
 sys.exit()
