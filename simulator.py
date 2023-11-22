@@ -59,11 +59,15 @@ def PendulumEnergy(q, qp_d):
 
 
 def MotorDynamics(Vin, dt):
-    global qr_d, qr
-    Tm = ((Vin - (qr_d * ke)) / R) * kt
+    global qr_d, qr, curr_prev, curr_d
+    curr = (Vin - (qr_d * ke) - (L * curr_d)) / R
+    curr_d = (curr - curr_prev)/dt
+    print(curr_d)
+    Tm = curr * kt
     qr_dd = (Tm - B * qr_d) / J
     qr_d = qr_d + (qr_dd * dt)
     qr = qr + (qr_d * dt)
+    curr_prev = curr
     return Tm
 
 
@@ -155,8 +159,8 @@ def on_click(event):
 # ==========================================================================================
 
 p = pyaudio.PyAudio()
-BITRATE = 44000  # number of frames per second/frameset.
-FREQUENCY = 500  # Hz, waves per second, 261.63=C4-note.
+BITRATE = 90000  # number of frames per second/frameset.
+FREQUENCY = 2000  # Hz, waves per second, 261.63=C4-note.
 BITRATE = max(BITRATE, FREQUENCY + 100)
 stream = p.open(format=p.get_format_from_width(1), channels=1, rate=BITRATE, output=True)
 stop_thread = False
@@ -165,7 +169,7 @@ def generate_sound():
     """Generate and play sound with current frequency in a loop."""
     while not stop_thread:
         # Generate wave data for 1 second
-        NUMBEROFFRAMES = int(BITRATE * 0.01)  # 1 second of sound
+        NUMBEROFFRAMES = int(BITRATE * 0.0002)  # 1 second of sound
         WAVEDATA = ""
         for x in range(NUMBEROFFRAMES):
             try:
@@ -204,11 +208,14 @@ qp_d = 0.0  # Initial pendulum speed
 qr = 0  # Initial reaction wheel angle
 qr_d = 0  # Initial reaction wheel speed
 
+curr_prev = 0
+curr_d = 0
+
 Tm = 0  # Initial reaction wheel torque
 Tp = 0  # Initial disturbance torque
 
 timedt = 0
-dt = 1 / 10  # frequency (Hz)
+dt = 1 / 100  # frequency (Hz)
 reqE = (m1 + m2) * g * L2 * math.cos(0)
 
 setpoint = 0
@@ -256,6 +263,7 @@ while running:
                 Tp = 0
                 settled_flag = False
                 wait_flag = False
+                timedt = 0
                 timedt_data = []
                 qp_data = []
                 setpoint_data = []
@@ -281,7 +289,9 @@ while running:
     else:
         Tp = 0
 
-    # Update setpoint
+    # ==========================================================================================
+    # ======================================= Controller =======================================
+    # ==========================================================================================
     setpoint_offset = (qp - math.pi) / (2 * math.pi)
     if setpoint_offset < 0:
         setpoint = (math.floor(setpoint_offset) + 1) * 2 * math.pi
