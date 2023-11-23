@@ -231,7 +231,7 @@ BLACK = (0, 0, 0)
 font = pygame.font.Font(None, 36)
 clock = pygame.time.Clock()
 
-qp = np.deg2rad(180)  # Initial pendulum angle
+qp = np.deg2rad(5)  # Initial pendulum angle
 qp_d = 0.0  # Initial pendulum speed
 
 qr = 0  # Initial reaction wheel angle
@@ -254,12 +254,12 @@ reqE = (m1 + m2) * g * L2 * math.cos(0)
 
 setpoint = 0
 
-Q_LQR = np.array([[100, 0, 0, 0],
+Q_LQR = np.array([[1000, 0, 0, 0],
                   [0, 1, 0, 0],
-                  [0, 0, 1, 0],
-                  [0, 0, 0, 1]])
+                  [0, 0, 1000, 0],
+                  [0, 0, 0, 1000]])
 
-R_LQR = 3
+R_LQR = 1
 
 N_LQR = np.array([[0],
                   [0],
@@ -436,7 +436,7 @@ while running:
 
     timedt += dt
 
-    if(abs(qp - setpoint) < 0.01):
+    if(abs(qp - setpoint) < 0.0001):
         controller_stat_flag = False
     elif(controller_stat_flag):
         controller_time += dt
