@@ -11,6 +11,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import pygetwindow as gw
 import pyaudio
 import threading
+import control
 
 # ==========================================================================================
 # ======================================= PARAMETER ========================================
@@ -58,13 +59,6 @@ B_Matrix = np.array([[0],
                      [0],
                      [b4]])
 
-Q_Matrix = np.array([[1, 0, 0, 0],
-                     [0, 1, 0, 0],
-                     [0, 0, 1, 0],
-                     [0, 0, 0, 1]])
-
-R_Matrix = 1
-
 # ==========================================================================================
 # ======================================= FUNCTION =========================================
 # ==========================================================================================
@@ -74,11 +68,11 @@ def Forwardkinematics(q):
     return x, y
 
 
-def PendulumEnergy(q, qp_d):
+def PendulumEnergy(q):
     K = (
         (0.5 * m1 * math.pow(qp_d * L1, 2))
         + (0.5 * m2 * math.pow(qp_d * L2, 2))
-        + (0.5 * I2 * qp_d * qp_d)
+        + (0.5 * J * qp_d * qp_d)
         + (0.5 * I1 * qp_d * qp_d)
     )  # Kinetic energy
     P = (m1 + m2) * g * L2 * math.cos(q)  # Potential energy
@@ -246,6 +240,21 @@ reqE = (m1 + m2) * g * L2 * math.cos(0)
 
 setpoint = 0
 
+Q_LQR = np.array([[100, 0, 0, 0],
+                  [0, 1, 0, 0],
+                  [0, 0, 1, 0],
+                  [0, 0, 0, 1]])
+
+R_LQR = 3
+
+N_LQR = np.array([[0],
+                  [0],
+                  [0],
+                  [0]])
+
+K, S, E = control.lqr(A_matrix, B_Matrix, Q_LQR, R_LQR, N_LQR)
+print(K) 
+
 d_flag = 0
 
 settled_flag = False
@@ -324,17 +333,15 @@ while running:
     elif setpoint_offset > 0:
         setpoint = math.ceil(setpoint_offset) * 2 * math.pi
 
-    E = PendulumEnergy(q=qp, qp_d=qp_d)
+    E = PendulumEnergy(q=qp)
 
     if wait_flag:
         controller_mode = "brake"
         if abs(E) < 0.05:
             wait_flag = False
-    elif abs(qp) % (2 * math.pi) <= np.deg2rad(20) or abs(qp) % (
-        2 * math.pi
-    ) >= np.deg2rad(340):
+    elif abs(qp) % (2 * math.pi) <= np.deg2rad(25) or abs(qp) % (2 * math.pi) >= np.deg2rad(335):
         settled_flag = True
-        controller_mode = "PID"
+        controller_mode = "LQR"
     else:
         if settled_flag:
             wait_flag = True
@@ -342,9 +349,9 @@ while running:
         if not wait_flag:
             controller_mode = "Bang-bang"
 
-    if controller_mode == "PID":
-        e = qp - setpoint
-        Vin = e * 300 + 50 * qp_d
+    if controller_mode == "LQR":
+        e = setpoint - qp
+        Vin = e * K[0, 0] + qp_d * -K[0, 1]
     elif controller_mode == "Bang-bang":
         if (qp_d < 0 and E < reqE) or (qp_d >= 0 and E >= reqE):
             Vin = 12
@@ -355,8 +362,8 @@ while running:
             Vin = -12
         elif qp_d >= 0:
             Vin = 12
-    # else:
-    #     Vin = 0
+    else:
+        Vin = 0
 
     if Vin > 24:
         Vin = 24
@@ -364,7 +371,6 @@ while running:
         Vin = -24
 
     Tm = MotorDynamics(Vin, dt)
-    print(Tm)
     FREQUENCY = pow(abs(qr_d), 2)
 
     qp_dd = RwipDynamics(qp, Tm, Tp)
