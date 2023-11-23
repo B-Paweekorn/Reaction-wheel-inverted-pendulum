@@ -27,7 +27,7 @@ g = 9.81  # Gravitational acceleration
 dp = 0.01  # RWIP damped
 wheelradius = 0.05  # Radius of Reaction wheel
 
-# Motor param
+# Motor paramhttps://www.facebook.com/messages/t/100001270813269/
 J = 0.0027  # Innertia Motor (Kgm^2)
 Ng = 0.83  # Transmission ratio of DC Motor
 ke = 3.69e-2  # Electrical constant of DC Motor (Vs/rad)
@@ -36,11 +36,38 @@ R = 2.85  # Resistor of DC Motor (Ohm)
 L = 3.73e-4  # Inductance of DC Motor (Henry)
 B = 3.85e-3  # Damped of DC Motor (Nn/v)
 
+# LQR parameter
+a = (m1 * L1 * L1) + (m2 * L2 * L2) + (I1)
+b = (m1 * L1 + m2 * L2) * g
+
+a21 = b/a
+a24 = (kt * ke * Ng * Ng)/(a * R)
+a41 = -b/a
+a44 = -(a + J) * (kt * ke * Ng * Ng) /(a * J * R)
+
+b2 = -(kt*Ng)/(a*R)
+b4 = (a + J) * (kt * Ng)/(a * J * R)
+
+A_matrix = np.array([[0, 1, 0, 0],
+                     [a21, 0, 0, a24],
+                     [0, 0, 0, 1],
+                     [a41, 0, 0 , a44]])
+
+B_Matrix = np.array([[0],
+                     [b2],
+                     [0],
+                     [b4]])
+
+Q_Matrix = np.array([[1, 0, 0, 0],
+                     [0, 1, 0, 0],
+                     [0, 0, 1, 0],
+                     [0, 0, 0, 1]])
+
+R_Matrix = 1
+
 # ==========================================================================================
 # ======================================= FUNCTION =========================================
 # ==========================================================================================
-
-
 def Forwardkinematics(q):
     x = L2 * math.sin(q)
     y = L2 * math.cos(q)
@@ -62,7 +89,6 @@ def MotorDynamics(Vin, dt):
     global qr_d, qr, curr_prev, curr_d
     curr = (Vin - (qr_d * ke) - (L * curr_d)) / R
     curr_d = (curr - curr_prev)/dt
-    print(curr_d)
     Tm = curr * kt
     qr_dd = (Tm - B * qr_d) / J
     qr_d = qr_d + (qr_dd * dt)
@@ -263,7 +289,7 @@ while running:
                 Tp = 0
                 settled_flag = False
                 wait_flag = False
-                timedt = 0
+                timedt = 0 
                 timedt_data = []
                 qp_data = []
                 setpoint_data = []
@@ -329,8 +355,8 @@ while running:
             Vin = -12
         elif qp_d >= 0:
             Vin = 12
-    else:
-        Vin = 0
+    # else:
+    #     Vin = 0
 
     if Vin > 24:
         Vin = 24
@@ -338,8 +364,8 @@ while running:
         Vin = -24
 
     Tm = MotorDynamics(Vin, dt)
-    
-    FREQUENCY = pow(abs(qr_d), 2) * 10
+    print(Tm)
+    FREQUENCY = pow(abs(qr_d), 2)
 
     qp_dd = RwipDynamics(qp, Tm, Tp)
     qp_d = qp_d + (qp_dd * dt)
