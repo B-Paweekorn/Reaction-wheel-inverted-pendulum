@@ -137,6 +137,7 @@ def plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint):
     for i, text in enumerate(texts):
         rendered_text = font.render(text, True, WHITE)
         screen.blit(rendered_text, (10, 80 + i * 20))
+    
     texts = [
         f"Motorspeed (RPM): {round(qr_d * 60 / (math.pi * 2), 2)}",
         f"Apply Torque (Nm): {round(Tm, 2)}",
@@ -145,6 +146,14 @@ def plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint):
     for i, text in enumerate(texts):
         rendered_text = font.render(text, True, WHITE)
         screen.blit(rendered_text, (230, 80 + i * 20))
+
+    texts = [
+        f"FUEL: {round(controller_energy, 2)}",
+        f"TIME: {round(controller_time, 2)}",
+    ]
+    for i, text in enumerate(texts):
+        rendered_text = font.render(text, True, BLACK)
+        screen.blit(rendered_text, (10, 170 + i * 20))
 
 
 def plot_graph():
@@ -233,6 +242,11 @@ curr_d = 0
 
 Tm = 0  # Initial reaction wheel torque
 Tp = 0  # Initial disturbance torque
+
+controller_stat_flag = False
+controller_stat_flag_last = False
+controller_time = 0
+controller_energy = 0
 
 timedt = 0
 dt = 1 / 100  # frequency (Hz)
@@ -342,6 +356,7 @@ while running:
     elif abs(qp) % (2 * math.pi) <= np.deg2rad(25) or abs(qp) % (2 * math.pi) >= np.deg2rad(335):
         settled_flag = True
         controller_mode = "LQR"
+        controller_stat_flag = True
     else:
         if settled_flag:
             wait_flag = True
@@ -417,11 +432,19 @@ while running:
 
     # calculate FPS and draw
     fps = clock.get_fps()
-    pygame.display.set_caption(
-        f"Reaction Wheel Inverted Pendulum (FPS: {fps:.2f}, dt: {dt:.4f}, time: {timedt:.2f})"
-    )
+    # pygame.display.set_caption(f"Reaction Wheel Inverted Pendulum (FPS: {fps:.2f}, dt: {dt:.4f}, time: {timedt:.2f})")
 
     timedt += dt
+
+    if(abs(qp - setpoint) < 0.01):
+        controller_stat_flag = False
+    elif(controller_stat_flag):
+        controller_time += dt
+        controller_energy += abs(qr_d * Tm) * dt
+    if(controller_mode != "LQR" or not controller_stat_flag_last and controller_stat_flag and abs(qp - setpoint) > 0.01):
+        controller_time = 0
+        controller_energy = 0
+    controller_stat_flag_last = controller_stat_flag
 
     if fps:
         dt = 1 / fps
