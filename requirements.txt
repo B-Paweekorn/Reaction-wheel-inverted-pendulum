@@ -1,0 +1,7 @@
+numpy
+pygame==2.5.2
+matplotlib
+PyQt5==5.15.7
+PyGetWindow==0.0.9
+PyAudio==0.2.14
+control==0.9.4
