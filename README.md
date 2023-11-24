@@ -4,7 +4,7 @@ This project simulates the dynamics of a Reaction Wheel Inverted Pendulum and in
 
 #### This project is a part of FRA333 Robot Kinematics @ Institute of Field Robotics, King Mongkut’s University of Technology Thonburi
 
-https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/47713359/e4808677-a06a-4235-a8b2-1285d11bd78b
+https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/47713359/a05cc066-3fb8-44ce-9fd9-84413e4f875e
 
 <br>
 
