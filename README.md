@@ -43,3 +43,16 @@ Clone the repository and install the dependencies:
 git clone https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum.git
 cd Reaction-wheel-inverted-pendulum
 pip install -r requirements.txt
+```
+
+<br>
+
+## Usage
+
+![Image of the program](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/47713359/da75ba1d-6873-4fda-af0a-952941dd4a28)
+
+**Inject** - Type the amount of torque into the box and click `INJECT` or ENTER key to inject a disturbance to the system
+
+**Reset** - Click `RESET` to reset the system
+
+**Plotting** - Click on the pendulum plot or the plot window to plot the data
