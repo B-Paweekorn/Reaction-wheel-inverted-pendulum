@@ -49,7 +49,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-![Image of the program](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/47713359/da75ba1d-6873-4fda-af0a-952941dd4a28)
+![Image of the program](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/47713359/e2ff45d4-bfb2-4831-9ec9-334b88f8ff77)
 
 **Inject** - Type the amount of torque into the box and click `INJECT` or ENTER key to inject a disturbance to the system
 
