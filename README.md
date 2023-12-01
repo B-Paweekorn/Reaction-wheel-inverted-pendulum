@@ -79,7 +79,8 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 - `I1` - Innertia moment of pendulum
 - `I2` - Innertia moment fly wheel and Innertia moment of motor
 - `g` - Gravitational acceleration
-- `Tr` - Torque apply by DC motor
+- `Tm` - Torque apply by DC motor
+- `Td` - Disturbance
 #### Kinetic Energy
 ```math
 \begin{equation}
@@ -101,7 +102,7 @@ V = (m_1L + m_2L)g\cosθ_p
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and
 ```math
 \begin{equation}
-\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{θ_p}} \right) - \frac{\partial L}{\partial θ_p} = T_r
+\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{θ_p}} \right) - \frac{\partial L}{\partial θ_p} = T_m
 \end{equation}
 ```
 Where Lagrangian (L) is
@@ -111,6 +112,19 @@ L = K - V
 \end{equation}
 ```
 #### Mathematical equations of RWIP is described as
+```math
+\begin{equation}
+\ddot{\theta_p} = \frac{m_{1}gL_{1}\sin\left(\theta_{p}\right)\ +\ m_{2}gL_{2}\sin\left(\theta_{p}\right)\ -\ T_{m} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}
+\end{equation}
+```
+
+<br>
+
+```math
+\begin{equation}
+\ddot{\theta_r} = \frac{T_{r}}{I_{2}}-\frac{m_{1}gL_{1}\ +\ m_{2}gL_{2}\ -\ T_{r} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}
+\end{equation}
+```
 ***DC Motor Dynamics***
 
 <br>
@@ -136,7 +150,7 @@ Vin = R i + L \frac{di}{dt} + k_e θ_r
 #### Mechanical Part
 ```math
 \begin{equation}
-T_{m} = B\omega_m + J\frac{dθ_r}{dt}
+T_{m} = Bθ_r + J\frac{\dot{θ_r}}{dt}
 \end{equation}
 ```
 
@@ -155,9 +169,11 @@ T_{m} = k_t i
 
     fff
 
-- **Bang-bang Controller**: Used as a swing-up controller to bring the pendulum to an upright position.
+- **Bang-bang Controller**: 
+The swing up control routine and the stabilizing control routine are switched between -15 to 15 degree. 
+<img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/79e6d6d3-9ab2-49eb-a58b-3ad10a96a96b" width="480">
+<br>
 
-    fff
 
 - **Brake Controller**: Used as reduced energy of RWIP when RWIP have too much energy for stabilze
 ### Sound Generation
