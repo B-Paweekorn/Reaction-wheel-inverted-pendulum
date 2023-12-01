@@ -58,3 +58,57 @@ pip install -r requirements.txt
 **Reset** - Click `RESET` to reset the system
 
 **Plotting** - Click on the pendulum plot or the plot window to plot the data
+
+<br>
+
+## Methodology
+### System Modeling
+
+The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendulum (RWIP) system. The key components include:
+
+***Reaction Wheel Inverted Pendulum Dynamics***
+<br>
+
+fff
+
+**DC Motor***
+
+<br>
+
+ fff
+
+### Controllers
+
+- **LQR Controller**: A linear quadratic regulator designed to stabilize the pendulum in the upright position.
+
+    ### State space ###
+
+    fff
+
+- **Bang-bang Controller**: Used as a swing-up controller to bring the pendulum to an upright position.
+
+    fff
+
+- **Brake Controller**: Used as reduced energy of RWIP when RWIP have too much energy for stabilze
+
+    fff
+
+### Sound Generation
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The simulation incorporates sound generation related to the speed of the reaction wheel. This feature adds an auditory element to the simulation, enhancing the user experience.
+
+<br>
+
+## Acknowledgments
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This project is part of the coursework for FRA333 Robot Kinematics at the Institute of Field Robotics, King Mongkut’s University of Technology Thonburi. Special thanks to the course instructors for their guidance and support.
+
+Feel free to explore, modify, and extend this project for educational and research purposes.
+
+<br>
+
+## Reference
+
+- [Swing Up and Balancing of a Reaction Wheel Inverted Pendulum](http://ise.ait.ac.th/wp-content/uploads/sites/57/2020/12/Swing-Up-and-Balancing-of-a-Reaction-Wheel-Inverted-Pendulum.pdf)
+
+- [Inverted Pendulum: State-Space Methods for Controller Design](https://ctms.engin.umich.edu/CTMS/index.php?example=InvertedPendulum&section=ControlStateSpace)
