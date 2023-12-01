@@ -69,31 +69,74 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 ***Reaction Wheel Inverted Pendulum Dynamics***
 <br>
 <img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/6c59b7a7-6aa7-4a73-b353-9e242e6aae1c" width="480">
+#### RWIP Parameter
+- `L1` - Pendulum length from orgin to center of mass
+- `L2` - Pendulum length
+- `m1` - Mass of pendulum
+- `m2` - Mass of fly wheel
+- `θp` - Angle of pendulum
+- `θr` - Angle of fly wheel
+- `I1` - Innertia moment of pendulum
+- `I2` - Innertia moment fly wheel and Innertia moment of motor
+- `g` - Gravitational acceleration
+- `Tr` - Torque apply by DC motor
 #### Kinetic Energy
-
+```math
+\begin{equation}
+K=\frac{1}{2}(m_{1}L_{1}^{2}+m_{2}L_{2}^{2}+I_{1}+I_{2})\dot{θ_p}^{2}+I_{2}\dot{θ_p}\dot{θ_r}+\frac{1}{2}I_{2}\dot{θ_r}^{2}
+\end{equation}
+```
 #### Potential Energy
-
+```math
+\begin{equation}
+V = (m_1L + m_2L)g\cosθ_p
+\end{equation}
+```
 #### Lagrange Method
-
-Lagrangian
-
+```math
+\begin{equation}
+\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{θ_r}} \right) - \frac{\partial L}{\partial θ_r} = 0
+\end{equation}
+```
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and
+```math
+\begin{equation}
+\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{θ_p}} \right) - \frac{\partial L}{\partial θ_p} = T_r
+\end{equation}
+```
+Where Lagrangian (L) is
+```math
+\begin{equation}
+L = K - V
+\end{equation}
+```
 #### Mathematical equations of RWIP is described as
-
-
 ***DC Motor Dynamics***
+
 <br>
 <img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/482f83f0-a4d7-4a70-b65e-006408f06a36" width="480">
+<br>
 
+#### Brushed DC Parameter
+
+- `Vin` - Input Voltage
+- `R` - Motor resistance
+- `L` - Motor inductance
+- `i` - Motor current
+- `B` - Motor damped
+- `J` - Motor rotor Innertia
+- `ke` - Back EMF constant
+- `kt` - Torque constant
 #### Electrical part
 ```math
 \begin{equation}
-Vin = R i + L \frac{di}{dt} + k_e \omega_m
+Vin = R i + L \frac{di}{dt} + k_e θ_r
 \end{equation}
 ```
 #### Mechanical Part
 ```math
 \begin{equation}
-T_{m} = B\omega_m + J\frac{d\omega_m}{dt}
+T_{m} = B\omega_m + J\frac{dθ_r}{dt}
 \end{equation}
 ```
 
@@ -117,9 +160,6 @@ T_{m} = k_t i
     fff
 
 - **Brake Controller**: Used as reduced energy of RWIP when RWIP have too much energy for stabilze
-
-    fff
-
 ### Sound Generation
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The simulation incorporates sound generation related to the speed of the reaction wheel. This feature adds an auditory element to the simulation, enhancing the user experience.
