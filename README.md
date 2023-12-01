@@ -68,14 +68,41 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 
 ***Reaction Wheel Inverted Pendulum Dynamics***
 <br>
+<img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/6c59b7a7-6aa7-4a73-b353-9e242e6aae1c" width="480">
+#### Kinetic Energy
 
-fff
+#### Potential Energy
 
-**DC Motor***
+#### Lagrange Method
 
+Lagrangian
+
+#### Mathematical equations of RWIP is described as
+
+
+***DC Motor Dynamics***
 <br>
+<img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/482f83f0-a4d7-4a70-b65e-006408f06a36" width="480">
 
- fff
+#### Electrical part
+```math
+\begin{equation}
+Vin = R i + L \frac{di}{dt} + k_e \omega_m
+\end{equation}
+```
+#### Mechanical Part
+```math
+\begin{equation}
+T_{m} = B\omega_m + J\frac{d\omega_m}{dt}
+\end{equation}
+```
+
+```math
+\begin{equation}
+T_{m} = k_t i
+\end{equation}
+```
+<br>
 
 ### Controllers
 
@@ -112,3 +139,4 @@ Feel free to explore, modify, and extend this project for educational and resear
 - [Swing Up and Balancing of a Reaction Wheel Inverted Pendulum](http://ise.ait.ac.th/wp-content/uploads/sites/57/2020/12/Swing-Up-and-Balancing-of-a-Reaction-Wheel-Inverted-Pendulum.pdf)
 
 - [Inverted Pendulum: State-Space Methods for Controller Design](https://ctms.engin.umich.edu/CTMS/index.php?example=InvertedPendulum&section=ControlStateSpace)
+
