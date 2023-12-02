@@ -165,15 +165,14 @@ T_{m} = k_t i
 
 - **LQR Controller**: A linear quadratic regulator designed to stabilize the pendulum in the upright position.
 
-    ### State space ###
+    #### State space ####
 
     fff
 
 - **Bang-bang Controller**: 
 The swing up control routine and the stabilizing control routine are switched between -15 to 15 degree. 
-<img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/79e6d6d3-9ab2-49eb-a58b-3ad10a96a96b" width="480">
+&nbsp;&nbsp; <img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/79e6d6d3-9ab2-49eb-a58b-3ad10a96a96b" width="480">
 <br>
-
 
 - **Brake Controller**: Used as reduced energy of RWIP when RWIP have too much energy for stabilze
 ### Sound Generation
