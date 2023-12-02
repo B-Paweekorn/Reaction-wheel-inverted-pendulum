@@ -67,8 +67,11 @@ pip install -r requirements.txt
 The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendulum (RWIP) system. The key components include:
 
 ***Reaction Wheel Inverted Pendulum Dynamics***
+
 <br>
+
 <img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/6c59b7a7-6aa7-4a73-b353-9e242e6aae1c" width="480">
+
 #### RWIP Parameter
 - `L1` - Pendulum length from orgin to center of mass
 - `L2` - Pendulum length
@@ -81,54 +84,44 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 - `g` - Gravitational acceleration
 - `Tm` - Torque apply by DC motor
 - `Td` - Disturbance
+
 #### Kinetic Energy
-```math
-\begin{equation}
-K=\frac{1}{2}(m_{1}L_{1}^{2}+m_{2}L_{2}^{2}+I_{1}+I_{2})\dot{θ_p}^{2}+I_{2}\dot{θ_p}\dot{θ_r}+\frac{1}{2}I_{2}\dot{θ_r}^{2}
-\end{equation}
-```
+
+&emsp; $K = \frac{1}{2}(m_{1}L_{1}^{2}+m_{2}L_{2}^{2}+I_{1})\dot{θ_p}^{2} + \frac{1}{2}I_{2}(\dot{θ_p}+\dot{θ_r})^{2}$
+
+&emsp; $K = \frac{1}{2}(m_{1}L_{1}^{2}+m_{2}L_{2}^{2}+I_{1}+I_{2})\dot{θ_p}^{2} + I_{2}\dot{θ_p}\dot{θ_r} + \frac{1}{2}I_{2}\dot{θ_r}^{2}$
+
 #### Potential Energy
-```math
-\begin{equation}
-V = (m_1L + m_2L)g\cosθ_p
-\end{equation}
-```
+
+&emsp; $V = (m_1L + m_2L)g\cosθ_p$
+
+
 #### Lagrange Method
-```math
-\begin{equation}
-\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{θ_r}} \right) - \frac{\partial L}{\partial θ_r} = 0
-\end{equation}
-```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and
-```math
-\begin{equation}
-\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{θ_p}} \right) - \frac{\partial L}{\partial θ_p} = T_m
-\end{equation}
-```
-Where Lagrangian (L) is
-```math
-\begin{equation}
-L = K - V
-\end{equation}
-```
+
+&emsp; $\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{θ_r}} \right) - \frac{\partial L}{\partial θ_r} = 0$
+&emsp;&emsp; and
+
+&emsp; $\frac{d}{dt} \left( \frac{\partial L}{\partial \dot{θ_p}} \right) - \frac{\partial L}{\partial θ_p} = T_m$
+
+&emsp; Where Lagrangian (L) is
+
+&emsp; $L = K - V$
+
+
 #### Mathematical equations of RWIP is described as
-```math
-\begin{equation}
-\ddot{\theta_p} = \frac{m_{1}gL_{1}\sin\left(\theta_{p}\right)\ +\ m_{2}gL_{2}\sin\left(\theta_{p}\right)\ -\ T_{m} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}
-\end{equation}
-```
+
+&emsp; $\ddot{\theta_p} = \frac{m_{1}gL_{1}\sin\left(\theta_{p}\right)\ +\ m_{2}gL_{2}\sin\left(\theta_{p}\right)\ -\ T_{m} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}$
 
 <br>
 
-```math
-\begin{equation}
-\ddot{\theta_r} = \frac{T_{r}}{I_{2}}-\frac{m_{1}gL_{1}\ +\ m_{2}gL_{2}\ -\ T_{r} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}
-\end{equation}
-```
+&emsp; $\ddot{\theta_r} = \frac{T_{r}}{I_{2}}-\frac{m_{1}gL_{1}\ +\ m_{2}gL_{2}\ -\ T_{r} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}$
+
+<br>
+
 ***DC Motor Dynamics***
 
-<br>
 <img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/482f83f0-a4d7-4a70-b65e-006408f06a36" width="480">
+
 <br>
 
 #### Brushed DC Parameter
@@ -141,24 +134,17 @@ L = K - V
 - `J` - Motor rotor Innertia
 - `ke` - Back EMF constant
 - `kt` - Torque constant
-#### Electrical part
-```math
-\begin{equation}
-Vin = R i + L \frac{di}{dt} + k_e θ_r
-\end{equation}
-```
-#### Mechanical Part
-```math
-\begin{equation}
-T_{m} = Bθ_r + J\frac{\dot{θ_r}}{dt}
-\end{equation}
-```
 
-```math
-\begin{equation}
-T_{m} = k_t i
-\end{equation}
-```
+#### Electrical part
+
+&emsp; $Vin = R i + L \frac{di}{dt} + k_e θ_r$
+
+#### Mechanical Part
+
+&emsp; $T_{m} = Bθ_r + J\frac{\dot{θ_r}}{dt}$
+
+&emsp; $T_{m} = k_t i$
+
 <br>
 
 ### Controllers
@@ -194,4 +180,3 @@ Feel free to explore, modify, and extend this project for educational and resear
 - [Swing Up and Balancing of a Reaction Wheel Inverted Pendulum](http://ise.ait.ac.th/wp-content/uploads/sites/57/2020/12/Swing-Up-and-Balancing-of-a-Reaction-Wheel-Inverted-Pendulum.pdf)
 
 - [Inverted Pendulum: State-Space Methods for Controller Design](https://ctms.engin.umich.edu/CTMS/index.php?example=InvertedPendulum&section=ControlStateSpace)
-
