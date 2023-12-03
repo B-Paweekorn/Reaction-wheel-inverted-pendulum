@@ -144,7 +144,6 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 &emsp; $T_{m} = Bθ_r + J\frac{\dot{θ_r}}{dt}$
 
 &emsp; $T_{m} = k_t i$
-
 <br>
 
 ### Controllers
@@ -159,8 +158,6 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
       when sinθp -> 0 sinθp = θp
   
     &emsp;&emsp;&emsp; $\ddot{\theta_p} = \frac{m_{1}gL_{1}\theta_{p}\ +\ m_{2}gL_{2}\theta_{p}\ -\ T_{m} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}$
-
-    <br>
 
     &emsp;&emsp;&emsp; $\ddot{\theta_r} = \frac{T_{r}}{I_{2}}\-\frac{m_{1}gL_{1}\ +\ m_{2}gL_{2}\ -\ T_{m} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}$
   
@@ -180,7 +177,6 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 - **Bang-bang Controller**: 
 The swing up control routine and the stabilizing control routine are switched between -15 to 15 degree. 
 &nbsp;&nbsp; <img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/79e6d6d3-9ab2-49eb-a58b-3ad10a96a96b" width="480">
-<br>
 
 - **Brake Controller**: Used as reduced energy of RWIP when RWIP have too much energy for stabilze
 ### Sound Generation
