@@ -124,7 +124,7 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 
 <br>
 
-#### Brushed DC Parameter
+#### Brushed DC Motor Parameter
 
 - `Vin` - Input Voltage
 - `R` - Motor resistance
