@@ -114,7 +114,7 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 
 <br>
 
-&emsp; $\ddot{\theta_r} = \frac{T_{r}}{I_{2}}-\frac{m_{1}gL_{1}\ +\ m_{2}gL_{2}\ -\ T_{r} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}$
+&emsp; $\ddot{\theta_r} = \frac{T_{r}}{I_{2}}\-\frac{m_{1}gL_{1}\ +\ m_{2}gL_{2}\ -\ T_{m} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}$
 
 <br>
 
@@ -151,9 +151,31 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 
 - **LQR Controller**: A linear quadratic regulator designed to stabilize the pendulum in the upright position.
 
-    #### State space ####
+    
+    #### Linearization dynamics model ####
+  
+    - **Part RWIP**
+ 
+      when sinθp -> 0 sinθp = θp
+  
+    &emsp;&emsp;&emsp; $\ddot{\theta_p} = \frac{m_{1}gL_{1}\theta_{p}\ +\ m_{2}gL_{2}\theta_{p}\ -\ T_{m} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}$
 
-    fff
+    <br>
+
+    &emsp;&emsp;&emsp; $\ddot{\theta_r} = \frac{T_{r}}{I_{2}}\-\frac{m_{1}gL_{1}\ +\ m_{2}gL_{2}\ -\ T_{m} +\ T_{d}}{m_{1}L_{1}^{2}+m_{2}L_{2}+I_{1}}$
+  
+    - **Part Motor**
+
+    &nbsp;&nbsp;&nbsp;We can estimate that L << R
+        
+    &emsp;&emsp;&emsp; $Vin = R i + k_e θ_r$
+
+    &emsp;&emsp;&emsp; $T_{m} = k_t i$
+
+    #### State space ####
+&emsp;&emsp;&emsp;&emsp;&emsp;
+![Matrix](https://latex.codecogs.com/svg.image?%5Cbegin%7Bbmatrix%7D%5Cdot%7B%5Ctheta_p%7D%5C%5C%5Cddot%7B%5Ctheta_p%7D%5C%5C%5Cdot%7B%5Ctheta_r%7D%5C%5C%5Cddot%7B%5Ctheta_r%7D%5Cend%7Bbmatrix%7D=%5Cbegin%7Bbmatrix%7D0&1&0&0%5C%5C%5Cfrac%7B(m_1L_1&plus;m_2L_2)g%7D%7Bm_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J%7D&0&0&%5Cfrac%7Bk_tk_e%7D%7B(m_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J)R%7D%5C%5C0&0&0&1%5C%5C-%5Cfrac%7B(m_1L_1&plus;m_2L_2)g%7D%7Bm_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J%7D&0&0&-(%5Cfrac%7Bm_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;2J%7D%7B(m_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J)J%7D)(%5Cfrac%7Bk_tk_e%7D%7BR%7D)%5C%5C%5Cend%7Bbmatrix%7D%5Cbegin%7Bbmatrix%7D%5Ctheta_p%5C%5C%5Cdot%7B%5Ctheta_p%7D%5C%5C%5Ctheta_r%5C%5C%5Cdot%7B%5Ctheta_r%7D%5Cend%7Bbmatrix%7D&plus;%5Cbegin%7Bbmatrix%7D0%5C%5C%5Cfrac%7Bk_t%7D%7B(m_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J)R%7D%5C%5C0%5C%5C(%5Cfrac%7Bm_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;2J%7D%7B(m_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J)J%7D)(%5Cfrac%7Bkt%7D%7BR%7D)%5Cend%7Bbmatrix%7DV_%7Bin%7D)
+
 
 - **Bang-bang Controller**: 
 The swing up control routine and the stabilizing control routine are switched between -15 to 15 degree. 
