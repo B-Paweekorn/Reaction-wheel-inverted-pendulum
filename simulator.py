@@ -12,30 +12,27 @@ import pygetwindow as gw
 import pyaudio
 import threading
 import control
-
-# ==========================================================================================
-# ======================================= PARAMETER ========================================
-# ==========================================================================================
+import param
 
 # RWIP param
-L1 = 0.11  # Length of Pendulum from origin to center of mass (m)
-L2 = 0.18  # Length of Pendulum (m)
-m1 = 0.96  # Mass of Pendulum (kg)
-m2 = 0.35  # Mass of Wheel (kg)
-I1 = 0.0212  # Innertia moment of Pendulum (Kg*m^2)
-I2 = 0.0027  # Innertia moment of Wheel (Kg*m^2)
-g = 9.81  # Gravitational acceleration
-dp = 0.01  # RWIP damped
-wheelradius = 0.05  # Radius of Reaction wheel
+L1 = param.L1
+L2 = param.L2
+m1 = param.m1
+m2 = param.m2
+I1 = param.I1
+I2 = param.I2
+g = param.g
+dp = param.dp
+wheelradius = param.wheelradius
 
 # Motor param
-J = 0.0027  # Innertia Motor (Kgm^2)
-Ng = 0.83  # Transmission ratio of DC Motor
-ke = 3.69e-2  # Electrical constant of DC Motor (Vs/rad)
-kt = ke * Ng  # Mechanical constant of DC Motor (Nm/A)
-R = 2.85  # Resistor of DC Motor (Ohm)
-L = 3.73e-4  # Inductance of DC Motor (Henry)
-B = 3.85e-3  # Damped of DC Motor (Nn/v)
+J = param.J
+Ng = param.Ng
+ke = param.ke
+kt = param.kt
+R = param.R
+L = param.L
+B = param.B
 
 # LQR parameter
 a = (m1 * L1 * L1) + (m2 * L2 * L2) + (I1)
@@ -231,17 +228,17 @@ BLACK = (0, 0, 0)
 font = pygame.font.Font(None, 36)
 clock = pygame.time.Clock()
 
-qp = np.deg2rad(180)  # Initial pendulum angle
-qp_d = 0.0  # Initial pendulum speed
+qp = np.deg2rad(param.init_qp)
+qp_d = param.init_qp_d
 
-qr = 0  # Initial reaction wheel angle
-qr_d = 0  # Initial reaction wheel speed
+qr = param.init_qr  # Initial reaction wheel angle
+qr_d = param.init_qr_d  # Initial reaction wheel speed
 
 curr_prev = 0
 curr_d = 0
 
-Tm = 0  # Initial reaction wheel torque
-Tp = 0  # Initial disturbance torque
+Tm = param.init_Tm  # Initial reaction wheel torque
+Tp = param.init_Tp  # Initial disturbance torque
 
 controller_stat_flag = False
 controller_stat_flag_last = False
@@ -254,17 +251,9 @@ reqE = (m1 + m2) * g * L2 * math.cos(0)
 
 setpoint = 0
 
-Q_LQR = np.array([[23, 0, 0, 0],
-                  [0, 1, 0, 0],
-                  [0, 0, 2, 0],
-                  [0, 0, 0, 1]])
-
-R_LQR = 100
-
-N_LQR = np.array([[0],
-                  [0],
-                  [0],
-                  [0]])
+Q_LQR = param.Q_LQR
+R_LQR = param.R_LQR
+N_LQR = param.N_LQR
 
 K, S, E = control.lqr(A_matrix, B_Matrix, Q_LQR, R_LQR, N_LQR)
 print(K) 
@@ -353,7 +342,7 @@ while running:
         controller_mode = "brake"
         if abs(E) < 0.05:
             wait_flag = False
-    elif abs(qp) % (2 * math.pi) <= np.deg2rad(25) or abs(qp) % (2 * math.pi) >= np.deg2rad(335):
+    elif abs(qp) % (2 * math.pi) <= np.deg2rad(param.LQR_StabilizeBound) or abs(qp) % (2 * math.pi) >= np.deg2rad(360 - param.LQR_StabilizeBound):
         settled_flag = True
         controller_mode = "LQR"
         controller_stat_flag = True
@@ -380,6 +369,7 @@ while running:
     else:
         Vin = 0
 
+    # Actual Limit
     if Vin > 24:
         Vin = 24
     elif Vin < -24:
