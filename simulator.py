@@ -28,7 +28,7 @@ g = 9.81  # Gravitational acceleration
 dp = 0.01  # RWIP damped
 wheelradius = 0.05  # Radius of Reaction wheel
 
-# Motor paramhttps://www.facebook.com/messages/t/100001270813269/
+# Motor param
 J = 0.0027  # Innertia Motor (Kgm^2)
 Ng = 0.83  # Transmission ratio of DC Motor
 ke = 3.69e-2  # Electrical constant of DC Motor (Vs/rad)
