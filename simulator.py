@@ -1,12 +1,11 @@
 import numpy as np
 import pygame
-from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN, K_RETURN
+from pygame.locals import QUIT, MOUSEBUTTONDOWN, KEYDOWN
 import sys
 import math
 import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import Qt
-from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import pygetwindow as gw
 import pyaudio
@@ -14,25 +13,11 @@ import threading
 import control
 import param
 
-# RWIP param
-L1 = param.L1
-L2 = param.L2
-m1 = param.m1
-m2 = param.m2
-I1 = param.I1
-I2 = param.I2
-g = param.g
-dp = param.dp
-wheelradius = param.wheelradius
-
-# Motor param
-J = param.J
-Ng = param.Ng
-ke = param.ke
-kt = param.kt
-R = param.R
-L = param.L
-B = param.B
+# Extracting constants from param module
+L1, L2, m1, m2, I1, I2, g, dp, wheelradius = param.L1, param.L2, param.m1, param.m2, param.I1, param.I2, param.g, param.dp, param.wheelradius
+J, Ng, ke, kt, R, L, B = param.J, param.Ng, param.ke, param.kt, param.R, param.L, param.B
+Q_LQR, R_LQR, N_LQR = param.Q_LQR, param.R_LQR, param.N_LQR
+LQR_StabilizeBound = param.LQR_StabilizeBound
 
 # LQR parameter
 a = (m1 * L1 * L1) + (m2 * L2 * L2) + (I1)
@@ -251,12 +236,7 @@ reqE = (m1 + m2) * g * L2 * math.cos(0)
 
 setpoint = 0
 
-Q_LQR = param.Q_LQR
-R_LQR = param.R_LQR
-N_LQR = param.N_LQR
-
 K, S, E = control.lqr(A_matrix, B_Matrix, Q_LQR, R_LQR, N_LQR)
-print(K) 
 
 d_flag = 0
 
@@ -277,7 +257,6 @@ canvas = FigureCanvas(fig)
 win.setCentralWidget(canvas)
 win.show()
 plt.gcf().canvas.mpl_connect('button_press_event', on_click)
-
 timedt_data = []
 qp_data = []
 setpoint_data = []
@@ -289,7 +268,6 @@ while running:
         if event.type == QUIT:
             running = False
         elif event.type == MOUSEBUTTONDOWN:
-            # print(event.pos)
             if 10 < event.pos[0] < 110 and 10 < event.pos[1] < 60:
                 input_flag = True
             if 292 < event.pos[0] < 392 and 10 < event.pos[1] < 60:
@@ -342,7 +320,7 @@ while running:
         controller_mode = "brake"
         if abs(E) < 0.05:
             wait_flag = False
-    elif abs(qp) % (2 * math.pi) <= np.deg2rad(param.LQR_StabilizeBound) or abs(qp) % (2 * math.pi) >= np.deg2rad(360 - param.LQR_StabilizeBound):
+    elif abs(qp) % (2 * math.pi) <= np.deg2rad(LQR_StabilizeBound) or abs(qp) % (2 * math.pi) >= np.deg2rad(360 - LQR_StabilizeBound):
         settled_flag = True
         controller_mode = "LQR"
         controller_stat_flag = True
@@ -361,6 +339,8 @@ while running:
             Vin = 12
         elif (qp_d >= 0 and E < reqE) or (qp_d < 0 and E >= reqE):
             Vin = -12
+        else:
+            Vin = 0
     elif controller_mode == "brake":
         if qp_d < 0:
             Vin = -12
@@ -374,10 +354,8 @@ while running:
         Vin = 24
     elif Vin < -24:
         Vin = -24
-
     Tm = MotorDynamics(Vin, dt)
     FREQUENCY = pow(abs(qr_d), 2)
-
     qp_dd = RwipDynamics(qp, Tm, Tp)
     qp_d = qp_d + (qp_dd * dt)
     qp = qp + (qp_d * dt)
@@ -394,7 +372,6 @@ while running:
 
     # Draw figure
     plot_figure(screen, qp, qp_d, qr_d, Tm, Vin, Tp, setpoint)
-
     timedt_data.append(timedt)
     qp_data.append(qp)
     setpoint_data.append(setpoint)
@@ -409,7 +386,6 @@ while running:
     pygame.draw.rect(screen, GREY, (10, 10, 100, 50))
     text = font.render("INJECT", True, WHITE)
     screen.blit(text, (20, 23))
-
     pygame.draw.rect(screen, RED, (292, 10, 100, 50))
     text = font.render("RESET", True, (255, 255, 255))
     screen.blit(text, (303, 23))
@@ -422,10 +398,7 @@ while running:
 
     # calculate FPS and draw
     fps = clock.get_fps()
-    # pygame.display.set_caption(f"Reaction Wheel Inverted Pendulum (FPS: {fps:.2f}, dt: {dt:.4f}, time: {timedt:.2f})")
-
     timedt += dt
-
     if(abs(qp - setpoint) < 0.0001):
         controller_stat_flag = False
     elif(controller_stat_flag):
@@ -435,7 +408,6 @@ while running:
         controller_time = 0
         controller_energy = 0
     controller_stat_flag_last = controller_stat_flag
-
     if fps:
         dt = 1 / fps
 
