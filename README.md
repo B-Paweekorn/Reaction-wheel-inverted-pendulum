@@ -186,11 +186,19 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
 
    #### Root Locus Design ####
    
-     &emsp;&emsp;&emsp;To predict the system's characteristics as the gain (Kp) is adjusted and poles move, design the root locus.
+     To predict the system's characteristics as the gain (Kp) is adjusted and poles move, design the root locus.
+      
+     &emsp;&emsp;&emsp; ![image](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/a4bacd35-6c37-458c-ae57-cc66dece8c4e)
+      
+     Root Locus of the system. It has one zero (s = 0) and three poles
 
-&emsp;&emsp;&emsp; ![image](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/a4bacd35-6c37-458c-ae57-cc66dece8c4e)
-
-&emsp;&emsp;&emsp; Root Locus of the system. It has one zero and three poles
+   #### Closed Loop Root Locus ####
+   
+   &emsp;&emsp;&emsp; ![image](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/31d1765a-d515-48da-8024-f94bcc96d6e3)
+   
+   &emsp; Where G(s) is Kp the gain can be adjusted ti make the closed loop poles to be in stable location The resultant Root Locus can be seen below (note to plot this graph in  `param.py` you need to set ` Stabilize_Controller ` to "PID" mode and set ` plot_rootlocus ` to "True") in this graph you can click pole position you want to know Gain `Kp` to adjust your system characteristics. 
+   
+   &emsp;&emsp;&emsp; ![image](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/43c4a26f-167f-4717-974e-1a28caa43576)
 
 - **Bang-bang Controller**: 
 The swing up control routine and the stabilizing control routine are switched between -15 to 15 degree
