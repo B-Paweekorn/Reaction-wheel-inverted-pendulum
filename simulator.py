@@ -17,7 +17,7 @@ import param
 L1, L2, m1, m2, I1, I2, g, dp, wheelradius = param.L1, param.L2, param.m1, param.m2, param.I1, param.I2, param.g, param.dp, param.wheelradius
 J, Ng, ke, kt, R, L, B = param.J, param.Ng, param.ke, param.kt, param.R, param.L, param.B
 Q_LQR, R_LQR, N_LQR = param.Q_LQR, param.R_LQR, param.N_LQR
-LQR_StabilizeBound = param.LQR_StabilizeBound
+StabilizeBound = param.StabilizeBound
 
 # LQR parameter
 a = (m1 * L1 * L1) + (m2 * L2 * L2) + (I1)
@@ -41,6 +41,7 @@ B_Matrix = np.array([[0],
                      [0],
                      [b4]])
 
+desired_poles = []
 # ==========================================================================================
 # ======================================= FUNCTION =========================================
 # ==========================================================================================
@@ -197,22 +198,6 @@ sound_thread.start()
 # ==========================================================================================
 # ======================================= MAIN LOGIC =======================================
 # ==========================================================================================
-
-pygame.init()
-
-width, height = 400, 560
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Reaction Wheel Inverted Pendulum")
-pygame_windows = gw.getWindowsWithTitle("Reaction Wheel Inverted Pendulum")
-
-WHITE = (255, 255, 255)
-GREY = (100, 100, 100)
-RED = (255, 0, 0)
-BLACK = (0, 0, 0)
-
-font = pygame.font.Font(None, 36)
-clock = pygame.time.Clock()
-
 qp = np.deg2rad(param.init_qp)
 qp_d = param.init_qp_d
 
@@ -234,9 +219,30 @@ timedt = 0
 dt = 1 / 100  # frequency (Hz)
 reqE = (m1 + m2) * g * L2 * math.cos(0)
 
-setpoint = 0
+setpoint = 0 # do not adjust
 
+# For LQR control
 K, S, E = control.lqr(A_matrix, B_Matrix, Q_LQR, R_LQR, N_LQR)
+
+# For PID control
+s = control.TransferFunction.s
+G = (s/(-J-m1*L1*L1))/((s**3 + ((B/J) + (B + dp)/(m2*L2*L2))*s**2 - ((m1*L1 + m2*L2)*g/(m2*L2*L2*J) - (B + dp)/(m2*L2*L2*J))*s - (m1*L1 + m2*L2)*B*g/(m2*L2*L2*J)))
+C = 1/s
+
+# Plot the root locus
+if param.Stabilize_Controller == "PID" and param.plot_rootlocus:
+    print("PID Mode")
+    print("Waiting for root locus ...")
+    control.rlocus(C*G)
+    print("Systemzero: ", control.zero(G))
+    print("Systempoles: ", control.pole(G))
+    plt.title('Root Locus Plot')
+    plt.xlabel('Re')
+    plt.ylabel('Im')
+    plt.grid(True)
+    plt.show()
+    print("Initialize simulation")
+
 
 d_flag = 0
 
@@ -246,6 +252,22 @@ wait_flag = False
 running = True
 input_flag = False
 input_string = ""
+
+pygame.init()
+
+width, height = 400, 560
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Reaction Wheel Inverted Pendulum")
+pygame_windows = gw.getWindowsWithTitle("Reaction Wheel Inverted Pendulum")
+
+WHITE = (255, 255, 255)
+GREY = (100, 100, 100)
+RED = (255, 0, 0)
+BLACK = (0, 0, 0)
+
+font = pygame.font.Font(None, 36)
+clock = pygame.time.Clock()
+
 
 app = QApplication(sys.argv)
 win = QMainWindow()
@@ -271,10 +293,10 @@ while running:
             if 10 < event.pos[0] < 110 and 10 < event.pos[1] < 60:
                 input_flag = True
             if 292 < event.pos[0] < 392 and 10 < event.pos[1] < 60:
-                qp = np.deg2rad(180)
-                qp_d = 0.0
-                qr = 0
-                qr_d = 0
+                qp = np.deg2rad(param.init_qp)
+                qp_d = param.init_qp_d 
+                qr = param.init_qr
+                qr_d = param.init_qr_d
                 Tm = 0
                 Tp = 0
                 settled_flag = False
@@ -285,6 +307,8 @@ while running:
                 setpoint_data = []
                 Tm_data = []
                 qr_d_data = []
+                controller_time = 0
+                controller_energy = 0
             if event.pos[1] > 160:
                 plot_graph()
         elif event.type == KEYDOWN:
@@ -320,9 +344,9 @@ while running:
         controller_mode = "brake"
         if abs(E) < 0.05:
             wait_flag = False
-    elif abs(qp) % (2 * math.pi) <= np.deg2rad(LQR_StabilizeBound) or abs(qp) % (2 * math.pi) >= np.deg2rad(360 - LQR_StabilizeBound):
+    elif abs(qp) % (2 * math.pi) <= np.deg2rad(StabilizeBound) or abs(qp) % (2 * math.pi) >= np.deg2rad(360 - StabilizeBound):
         settled_flag = True
-        controller_mode = "LQR"
+        controller_mode = param.Stabilize_Controller
         controller_stat_flag = True
     else:
         if settled_flag:
@@ -334,6 +358,9 @@ while running:
     if controller_mode == "LQR":
         e = setpoint - qp
         Vin = e * K[0, 0] + qp_d * -K[0, 1]
+    elif controller_mode == "PID":
+        e = setpoint - qp
+        Vin = -e * param.Kp
     elif controller_mode == "Bang-bang":
         if (qp_d < 0 and E < reqE) or (qp_d >= 0 and E >= reqE):
             Vin = 12
@@ -399,12 +426,12 @@ while running:
     # calculate FPS and draw
     fps = clock.get_fps()
     timedt += dt
-    if(abs(qp - setpoint) < 0.0001):
+    if(abs(np.rad2deg(qp) - np.rad2deg(setpoint)) < 0.1):
         controller_stat_flag = False
     elif(controller_stat_flag):
         controller_time += dt
         controller_energy += abs(qr_d * Tm) * dt
-    if(controller_mode != "LQR" or not controller_stat_flag_last and controller_stat_flag and abs(qp - setpoint) > 0.01):
+    if(controller_mode != param.Stabilize_Controller or not controller_stat_flag_last and controller_stat_flag and (abs(np.rad2deg(qp) - np.rad2deg(setpoint)) < 0.1)):
         controller_time = 0
         controller_energy = 0
     controller_stat_flag_last = controller_stat_flag

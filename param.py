@@ -45,10 +45,17 @@ init_qr_d = 0.0  # Initial reaction wheel speed
 init_Tm = 0.0  # Initial reaction wheel torque
 init_Tp = 0.0  # Initial disturbance torque
 
+StabilizeBound = 25  # Angle at which LQR starts to stabilize (degree)
+Stabilize_Controller = "LQR" # Stabilize mode "LQR" or "PID"
+
+# Controller parameters for PID
+plot_rootlocus = False # Plot root locus of system
+Kp = 2730
+
 # Controller parameters for LQR
-Q_LQR = np.array([[23, 0, 0, 0],  # Weight for qp
-                  [0, 1, 0, 0],  # Weight for qp_d
-                  [0, 0, 2, 0],  # Weight for qr
+Q_LQR = np.array([[342, 0, 0, 0],  # Weight for qp
+                  [0, 541, 0, 0],  # Weight for qp_d
+                  [0, 0, 1, 0],  # Weight for qr
                   [0, 0, 0, 1]])  # Weight for qr_d
     
 R_LQR = 100  # Weight for the control input
@@ -58,4 +65,4 @@ N_LQR = np.array([[0],  # No cross-coupling terms for LQR
                   [0],
                   [0]])
 
-LQR_StabilizeBound = 25  # Angle at which LQR starts to stabilize (degree)
+StabilizeBound = 25  # Angle at which LQR starts to stabilize (degree)
