@@ -172,9 +172,25 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
     &emsp;&emsp;&emsp; $T_{m} = k_t i$
 
     #### State space ####
+  
+  The proceeding equations are valid around the operating point where θp = 0
+  
 &emsp;&emsp;&emsp;&emsp;&emsp;
 ![Matrix](https://latex.codecogs.com/svg.image?%5Cbegin%7Bbmatrix%7D%5Cdot%7B%5Ctheta_p%7D%5C%5C%5Cddot%7B%5Ctheta_p%7D%5C%5C%5Cdot%7B%5Ctheta_r%7D%5C%5C%5Cddot%7B%5Ctheta_r%7D%5Cend%7Bbmatrix%7D=%5Cbegin%7Bbmatrix%7D0&1&0&0%5C%5C%5Cfrac%7B(m_1L_1&plus;m_2L_2)g%7D%7Bm_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J%7D&0&0&%5Cfrac%7Bk_tk_e%7D%7B(m_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J)R%7D%5C%5C0&0&0&1%5C%5C-%5Cfrac%7B(m_1L_1&plus;m_2L_2)g%7D%7Bm_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J%7D&0&0&-(%5Cfrac%7Bm_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;2J%7D%7B(m_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J)J%7D)(%5Cfrac%7Bk_tk_e%7D%7BR%7D)%5C%5C%5Cend%7Bbmatrix%7D%5Cbegin%7Bbmatrix%7D%5Ctheta_p%5C%5C%5Cdot%7B%5Ctheta_p%7D%5C%5C%5Ctheta_r%5C%5C%5Cdot%7B%5Ctheta_r%7D%5Cend%7Bbmatrix%7D&plus;%5Cbegin%7Bbmatrix%7D0%5C%5C%5Cfrac%7Bk_t%7D%7B(m_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J)R%7D%5C%5C0%5C%5C(%5Cfrac%7Bm_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;2J%7D%7B(m_1L_1%5E%7B2%7D&plus;m_2L_2%5E%7B2%7D&plus;J)J%7D)(%5Cfrac%7Bkt%7D%7BR%7D)%5Cend%7Bbmatrix%7DV_%7Bin%7D)
 
+ - **PID Controller**:
+     The stabilize controller to compare with LQR
+    #### Transfer function ####
+   
+    &emsp;&emsp;&emsp; $\Large\frac{\theta_{p}(s)}{\tau_{m}(s)} = \frac{\frac{s}{-J - m_{2}l_{2}^{2}}}{s^{3} + \left(\frac{B+d_{p}}{J+m_{2}l_{2}^{2}}\right)s^{2} - \left(\frac{\left(m_{1}l_{1}+m_{2}l_{2}\right)g}{\left(J+m_{2}l_{2}^{2}\right)} - \frac{B \cdot d_{p}}{\left(J+m_{2}l_{2}^{2}\right)}\right)s - \frac{\left(m_{1}l_{1}+m_{2}l_{2}\right)Bg}{\left(J+m_{2}l_{2}^{2}\right)}}$
+
+   #### Root Locus Design ####
+   
+     &emsp;&emsp;&emsp;To predict the system's characteristics as the gain (Kp) is adjusted and poles move, design the root locus.
+
+&emsp;&emsp;&emsp; ![image](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/a4bacd35-6c37-458c-ae57-cc66dece8c4e)
+
+&emsp;&emsp;&emsp; Root Locus of the system. It has one zero and three poles
 
 - **Bang-bang Controller**: 
 The swing up control routine and the stabilizing control routine are switched between -15 to 15 degree
