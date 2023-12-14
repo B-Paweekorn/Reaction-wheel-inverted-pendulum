@@ -59,6 +59,8 @@ pip install -r requirements.txt
 
 **Plotting** - Click on the pendulum plot or the plot window to plot the data
 
+Edit the parameters in ```param.py```
+
 <br>
 
 ## Methodology
