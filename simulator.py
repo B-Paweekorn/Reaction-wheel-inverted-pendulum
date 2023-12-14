@@ -375,12 +375,13 @@ while running:
             Vin = 12
     else:
         Vin = 0
-
-    # Actual Limit
-    if Vin > 24:
-        Vin = 24
-    elif Vin < -24:
-        Vin = -24
+    if param.MotorLimit:
+        # Actual Limit
+        if Vin > 24:
+            Vin = 24
+        elif Vin < -24:
+            Vin = -24
+            
     Tm = MotorDynamics(Vin, dt)
     FREQUENCY = pow(abs(qr_d), 2)
     qp_dd = RwipDynamics(qp, Tm, Tp)

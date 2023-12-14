@@ -35,6 +35,9 @@ B = 3.85e-3  # Damping of DC Motor (Nn/v)
 # Sound 
 Sound = True  # Flag to enable/disable sound
 
+# Motor Limit
+MotorLimit = True # Set to False if you don't serious about hardware Limitation
+
 # Initial state
 init_qp = 180.0  # Initial pendulum angle (degree)
 init_qp_d = 0.0  # Initial pendulum speed
@@ -49,8 +52,8 @@ StabilizeBound = 25  # Angle at which LQR starts to stabilize (degree)
 Stabilize_Controller = "LQR" # Stabilize mode "LQR" or "PID"
 
 # Controller parameters for PID
-plot_rootlocus = False # Plot root locus of system
-Kp = 2730
+plot_rootlocus = False # Flag to enable/disable Plot root locus
+Kp = 2143
 
 # Controller parameters for LQR
 Q_LQR = np.array([[342, 0, 0, 0],  # Weight for qp
