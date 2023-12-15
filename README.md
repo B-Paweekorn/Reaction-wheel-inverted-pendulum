@@ -184,15 +184,15 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
      The stabilize controller to compare with LQR
     #### Transfer function ####
    
-    &emsp;&emsp;&emsp; $\Large\frac{\theta_{p}(s)}{\tau_{m}(s)} = \frac{\frac{s}{-J - m_{2}l_{2}^{2}}}{s^{3} + \left(\frac{B+d_{p}}{J+m_{2}l_{2}^{2}}\right)s^{2} - \left(\frac{\left(m_{1}l_{1}+m_{2}l_{2}\right)g}{\left(J+m_{2}l_{2}^{2}\right)} - \frac{B \cdot d_{p}}{\left(J+m_{2}l_{2}^{2}\right)}\right)s - \frac{\left(m_{1}l_{1}+m_{2}l_{2}\right)Bg}{\left(J+m_{2}l_{2}^{2}\right)}}$
+    &emsp;&emsp;&emsp; $\Large\frac{\theta_{p}(s)}{\tau_{m}(s)}=\frac{\frac{s}{-J-m_{2}L_{2}^{2}}}{s^{3}+\left(\frac{B}{I_{1}}+\frac{B+d_{p}}{J+m_{2}L_{2}^{2}}\right)s^{2}-\left(\frac{\left(m_{1}L_{1}+m_{2}L_{2}\right)g}{\left(J+m_{2}L_{2}^{2}\right)I_{1}}-\frac{B\cdot d_{p}}{\left(J+m_{2}L_{2}^{2}\right)I_{1}}\right)s-\frac{\left(m_{1}L_{1}+m_{2}L_{2}\right)Bg}{\left(J+m_{2}L_{2}^{2}\right)I_{1}}}$
 
    #### Root Locus Design ####
    
      To predict the system's characteristics as the gain (Kp) is adjusted and poles move, design the root locus.
       
-     &emsp;&emsp;&emsp; ![image](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/a4bacd35-6c37-458c-ae57-cc66dece8c4e)
-      
-     Root Locus of the system. It has one zero (s = 0) and three poles
+     &emsp;&emsp;&emsp; ![image](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/76fc37ed-f049-4606-9711-ea4dd4a56246)
+
+     Root Locus of the system by default parameter set. It has one zero (s = 0), and three poles (s = -74.93; s =-3.88e-3; s = 73.53).
 
    #### Closed Loop Root Locus ####
    
@@ -200,10 +200,10 @@ The simulation involves modeling the dynamics of a Reaction Wheel Inverted Pendu
    
    &emsp; Where G(s) is Kp the gain can be adjusted ti make the closed loop poles to be in stable location The resultant Root Locus can be seen below (note to plot this graph in  `param.py` you need to set ` Stabilize_Controller ` to "PID" mode and set ` plot_rootlocus ` to "True") in this graph you can click pole position you want to know Gain `Kp` to adjust your system characteristics. 
    
-   &emsp;&emsp;&emsp; ![image](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/43c4a26f-167f-4717-974e-1a28caa43576)
+   &emsp;&emsp;&emsp;![image](https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/692a1848-401b-4212-887d-eaeb9cc49548)
 
 - **Bang-bang Controller**: 
-The swing up control routine and the stabilizing control routine are switched between -15 to 15 degree
+The swing up control routine and the stabilizing control routine are switched between -25 to 25 degree
 
 &nbsp;&nbsp; <img src="https://github.com/B-Paweekorn/Reaction-wheel-inverted-pendulum/assets/122732439/79e6d6d3-9ab2-49eb-a58b-3ad10a96a96b" width="480">
 
