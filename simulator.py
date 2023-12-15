@@ -193,7 +193,8 @@ def generate_sound():
 
 # Start sound generation in a separate thread
 sound_thread = threading.Thread(target=generate_sound)
-sound_thread.start()
+if param.Sound:
+    sound_thread.start()
 
 # ==========================================================================================
 # ======================================= MAIN LOGIC =======================================
@@ -226,13 +227,14 @@ K, S, E = control.lqr(A_matrix, B_Matrix, Q_LQR, R_LQR, N_LQR)
 
 # For PID control
 s = control.TransferFunction.s
-G = (s/(-J-m1*L1*L1))/((s**3 + ((B/J) + (B + dp)/(m2*L2*L2))*s**2 - ((m1*L1 + m2*L2)*g/(m2*L2*L2*J) - (B + dp)/(m2*L2*L2*J))*s - (m1*L1 + m2*L2)*B*g/(m2*L2*L2*J)))
+G = (s/(-J-m1*L1*L1))/((s**3 + ((B/I1) + (B + dp)/(m2*L2*L2))*s**2 - ((m1*L1 + m2*L2)*g/((J + m2*L2*L2)*I1) - (B + dp)/((J+m2*L2*L2)*I1))*s - (m1*L1 + m2*L2)*B*g/((J+m2*L2*L2)*I1)))
 C = 1/s
 
 # Plot the root locus
 if param.Stabilize_Controller == "PID" and param.plot_rootlocus:
     print("PID Mode")
     print("Waiting for root locus ...")
+    print(G)
     control.rlocus(C*G)
     print("Systemzero: ", control.zero(G))
     print("Systempoles: ", control.pole(G))

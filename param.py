@@ -33,7 +33,7 @@ L = 3.73e-4  # Inductance of DC Motor (Henry)
 B = 3.85e-3  # Damping of DC Motor (Nn/v)
 
 # Sound 
-Sound = True  # Flag to enable/disable sound
+Sound = False # Flag to enable/disable sound
 
 # Motor Limit
 MotorLimit = True # Set to False if you don't serious about hardware Limitation
